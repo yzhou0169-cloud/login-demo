@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的野心</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #fceaf0 0%, #d8e1ff 100%);
+            font-family: 'STKaiti', '楷体', serif;
+            overflow: hidden;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(10px);
+            padding: 40px 20px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+        }
+        .text { color: #8e5431; font-size: 22px; font-weight: bold; line-height: 1.8; }
+        .en { color: #555; font-size: 15px; font-style: italic; margin-top: 15px; }
+        .petal { position: absolute; background-color: #ffc0cb; border-radius: 150% 0 150% 0; animation: fall 4s linear infinite; }
+        @keyframes fall { 0% { transform: translateY(-10vh) rotate(0deg); } 100% { transform: translateY(110vh) rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="text">🐱 我要我的知识和能力<br>配得上我的野心 🐱</div>
+        <div class="en">I want my knowledge and ability<br>to match my ambition.</div>
+    </div>
+    <script>
+        setInterval(() => {
+            const p = document.createElement('div');
+            p.className = 'petal';
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.width = p.style.height = Math.random() * 10 + 10 + 'px';
+            document.body.appendChild(p);
+            setTimeout(() => p.remove(), 4000);
+        }, 300);
+    </script>
+</body>
+</html>
