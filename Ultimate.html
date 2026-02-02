@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { margin: 0; background: #000; overflow: hidden; }
+        canvas { width: 100vw; height: 100vh; }
+    </style>
+</head>
+<body>
+    <canvas id="c"></canvas>
+    <script>
+        var c = document.getElementById("c"),
+            ctx = c.getContext("2d"),
+            w = c.width = window.innerWidth,
+            h = c.height = window.innerHeight,
+            particles = [];
+
+        // 3D 投影函数：让平面变立体
+        function project(x, y, z) {
+            var scale = 400 / (400 + z);
+            return {
+                x: x * scale + w / 2,
+                y: y * scale + h / 2,
+                opacity: (400 - z) / 400
+            };
+        }
+
+        function createHeart() {
+            for (var i = 0; i < 1500; i++) {
+                var t = Math.random() * Math.PI * 2;
+                var r = Math.random();
+                // 真正的 3D 建模公式
+                var x = 16 * Math.pow(Math.sin(t), 3);
+                var y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+                var z = (Math.random() - 0.5) * 10; // 给心加一点厚度
+                particles.push({ x: x, y: y, z: z, baseZ: z });
+            }
+        }
+
+        function render() {
+            ctx.fillStyle = "rgba(0,0,0,0.2)";
+            ctx.fillRect(0, 0, w, h);
+            var time = Date.now() * 0.002;
+
+            particles.forEach(p => {
+                // 旋转逻辑：让心在 3D 空间转动
+                var rotX = p.x * Math.cos(time) - p.z * Math.sin(time);
+                var rotZ = p.x * Math.sin(time) + p.z * Math.cos(time);
+                
+                // 结合跳动感
+                var s = 10 + Math.sin(time * 2) * 2;
+                var pos = project(rotX * s, p.y * s, rotZ * s);
+
+                ctx.fillStyle = "rgba(255, 45, 85, " + pos.opacity + ")";
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, 1.2, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            requestAnimationFrame(render);
+        }
+        createHeart();
+        render();
+    </script>
+</body>
+</html>
+
