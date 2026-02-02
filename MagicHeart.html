@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>3D Hyper-Particle Heart</title>
+    <style>body { margin: 0; background: #000; overflow: hidden; }</style>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // 1. 这里的粒子数量调到了 15,000，极其密集
+        const particleCount = 15000;
+        const positions = new Float32Array(particleCount * 3);
+        const colors = new Float32Array(particleCount * 3);
+
+        for (let i = 0; i < particleCount; i++) {
+            const t = Math.random() * Math.PI * 2;
+            // 3D 建模爱心公式
+            const x = 16 * Math.pow(Math.sin(t), 3);
+            const y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+            const z = (Math.random() - 0.5) * 15; // 增加 Z 轴深度，变厚实
+
+            positions[i * 3] = x;
+            positions[i * 3 + 1] = y;
+            positions[i * 3 + 2] = z;
+
+            // 颜色渐变逻辑：深粉到亮紫
+            colors[i * 3] = 1;
+            colors[i * 3 + 1] = 0.2 + Math.random() * 0.3;
+            colors[i * 3 + 2] = 0.5 + Math.random() * 0.5;
+        }
+
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+        // 3. 材质优化：这是不土的关键
+        const material = new THREE.PointsMaterial({
+            size: 0.4,          // 粒子极小，营造烟雾感
+            sizeAttenuation: true, // 远小近大
+            vertexColors: true, 
+            transparent: true,
+            blending: THREE.AdditiveBlending // 粒子重叠处会发光！
+        });
+
+        const heart = new THREE.Points(geometry, material);
+        scene.add(heart);
+        camera.position.z = 50;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            // 缓慢旋转 + 心跳缩放
+            heart.rotation.y += 0.01;
+            const s = 1 + Math.sin(Date.now() * 0.005) * 0.1;
+            heart.scale.set(s, s, s);
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
