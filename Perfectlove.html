@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>最终版粒子心</title>
+    <style>
+        /* 这里的背景一定要纯黑，才能衬托出粒子的亮光 */
+        canvas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; background-color: #000; }
+    </style>
+</head>
+<body>
+    <canvas id="heart"></canvas>
+    <script>
+        const canvas = document.getElementById('heart');
+        const ctx = canvas.getContext('2d');
+        let width, height, particles = [];
+
+        function init() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.onresize = init;
+        init();
+
+        // 这里的数学公式决定了心的形状，已经调到了最美比例
+        function getHeartPoint(t) {
+            return {
+                x: 16 * Math.pow(Math.sin(t), 3),
+                y: -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t))
+            };
+        }
+
+        function createParticle() {
+            const t = Math.random() * Math.PI * 2;
+            const point = getHeartPoint(t);
+            const scale = 13 + Math.random() * 5; 
+            return {
+                x: point.x * scale + width / 2,
+                y: point.y * scale + height / 2,
+                vx: (Math.random() - 0.5) * 0.6,
+                vy: (Math.random() - 0.5) * 0.6,
+                age: 0,
+                maxAge: 70 + Math.random() * 30,
+                size: Math.random() * 1.5 + 0.5
+            };
+        }
+
+        function render() {
+            // 这一步是关键！用带透明度的黑色覆盖，产生流星般的拖尾
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, width, height);
+
+            // 这是一个正弦函数，控制心跳的律动感
+            const pulse = 1 + 0.12 * Math.sin(Date.now() / 350);
+
+            if (particles.length < 800) {
+                for(let i=0; i<10; i++) particles.push(createParticle());
+            }
+
+            particles.forEach((p, i) => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.age++;
+
+                const opacity = 1 - p.age / p.maxAge;
+                ctx.fillStyle = `rgba(255, 182, 193, ${opacity})`; // 柔和的樱花粉
+                
+                const drawX = (p.x - width/2) * pulse + width/2;
+                const drawY = (p.y - height/2) * pulse + height/2;
+                
+                ctx.beginPath();
+                ctx.arc(drawX, drawY, p.size, 0, Math.PI * 2);
+                ctx.fill();
+
+                if (p.age > p.maxAge) particles.splice(i, 1);
+            });
+            requestAnimationFrame(render);
+        }
+        render();
+    </script>
+</body>
+</html>
+
